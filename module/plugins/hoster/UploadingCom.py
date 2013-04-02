@@ -25,14 +25,14 @@ from module.common.json_layer import json_loads
 class UploadingCom(SimpleHoster):
     __name__ = "UploadingCom"
     __type__ = "hoster"
-    __pattern__ = r"http://(?:www\.)?uploading\.com/files/(?:get/)?(?P<ID>[\w\d]+)"
-    __version__ = "0.32"
+    __pattern__ = r"http://(?:www\.)?uploading\.com/files/(?:get/)?(?P<ID>[\w\d]+)/(?P<N>.*)"
+    __version__ = "0.33"
     __description__ = """Uploading.Com File Download Hoster"""
     __author_name__ = ("jeix", "mkaay", "zoidberg")
     __author_mail__ = ("jeix@hasnomail.de", "mkaay@mkaay.de", "zoidberg@mujmail.cz")
     
-    FILE_NAME_PATTERN = r'<title>Download (?P<N>.*?) for free on uploading.com</title>'
-    FILE_SIZE_PATTERN = r'<span>File size: (?P<S>.*?)</span>'
+    #FILE_NAME_PATTERN = r'<title>(?P<N>.*?) - Free Download - Uploading.com</title>'
+    FILE_SIZE_PATTERN = r'"size tip_container">(?P<S>.*?)<div'
     FILE_OFFLINE_PATTERN = r'<h2.*?>The requested file is not found</h2>'
         
     def process(self, pyfile):
@@ -56,7 +56,8 @@ class UploadingCom(SimpleHoster):
     def handlePremium(self):
         postData = {'action': 'get_link',
                     'code': self.file_info['ID'],
-                    'pass': 'undefined'}
+                    'pass': 'undefined',
+                    'force_exe': 0}
 
         self.html = self.load('http://uploading.com/files/get/?JsHttpRequest=%d-xml' % timestamp(), post=postData)
         url = re.search(r'"link"\s*:\s*"(.*?)"', self.html)
